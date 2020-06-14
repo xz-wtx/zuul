@@ -1,0 +1,24 @@
+server:
+  port: 8080
+  servlet:
+    context-path: /zuul
+spring:
+  redis:
+    host: localhost
+    port: 6379
+    password:
+
+zuul:
+  routes:
+    http:
+      path: /uaa/**
+      url: http://localhost:8081/
+security:
+  oauth2:
+    client:
+      client-secret: 1111
+      client-id: app
+      access-token-uri: http://localhost:${server.port}/zuul/uaa/oauth/token
+      user-authorization-uri: http://localhost:${server.port}/zuul/uaa/oauth/authorize
+    resource:
+      user-info-uri: http://localhost:${server.port}/zuul/uaa/user
