@@ -6,7 +6,14 @@ public class ZuulConst {
      */
     public static String IS_SUCCESS="isSuccess";
 
+    /**
+     * 内部系统接口
+     */
     public static String IS_OPEN_API="isOpenApi";
+    /**
+     * 对外提供接口
+     */
+    public static String IS_CGI_BIN="isCgiBin";
 
     public static String PRE_TYPE="pre";
 

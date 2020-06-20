@@ -22,15 +22,38 @@ public class LoginFilter extends ZuulFilter {
     }
 
     @Override
-    public boolean shouldFilter() { return true; }
+    public boolean shouldFilter() {
+        RequestContext ctx = RequestContext.getCurrentContext();
+        /**
+         * 初始化
+         */
+        ctx.set(ZuulConst.IS_CGI_BIN,false);
+        ctx.set(ZuulConst.IS_OPEN_API,false);
+        //验证token
+        ctx.set(ZuulConst.IS_SUCCESS,true);
+        return true;
+    }
 
     @Override
     public Object run() throws ZuulException {
         log.info("LoginFilter");
         RequestContext ctx = RequestContext.getCurrentContext();
         HttpServletRequest request = ctx.getRequest();
-        ctx.set(ZuulConst.IS_SUCCESS,true);
+        String url = request.getRequestURI();
+
+        //提供外部接口必须包含（cgi-bin）
+        if((url.contains("/cgi-bin/")||url.contains("/oauth/"))&&!url.contains("/authorize")){
+        ctx.set(ZuulConst.IS_CGI_BIN,true);
         ctx.set(ZuulConst.IS_OPEN_API,true);
+        }
+        //前后的分离，可加可不加(只是把数据进步封装)
+        if(url.contains("/api/")){
+            ctx.set(ZuulConst.IS_OPEN_API,true);
+        }
+        //不走路由
+        if(url.contains("/open/")){
+            ctx.set(ZuulConst.IS_SUCCESS,false);
+        }
         return null;
     }
 }

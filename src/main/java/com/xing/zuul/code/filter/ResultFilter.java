@@ -32,7 +32,7 @@ public class ResultFilter extends ZuulFilter {
     @Override
     public boolean shouldFilter() {
         RequestContext context = RequestContext.getCurrentContext();
-        return (boolean) context.get(ZuulConst.IS_SUCCESS);
+        return (boolean) context.get(ZuulConst.IS_SUCCESS)&&(Boolean) context.get(ZuulConst.IS_OPEN_API);
     }
 
     @Override
@@ -43,29 +43,30 @@ public class ResultFilter extends ZuulFilter {
         HttpServletResponse response = context.getResponse();
 
         int status = response.getStatus();
-        InputStream in = context.getResponseDataStream();
-        String body = IOUtils.toString(in);
 
-        //针对第三方始终返回200调用成功，封装请求结果
-        if((Boolean) context.get(ZuulConst.IS_OPEN_API)){
-            response.setStatus(HttpStatus.OK.value());
-            if(!isXmlDocument(in)){
-               context.setResponseBody(JSON.toJSONString(new ResultVO(status,body)));
 
-            }else{
-                context.setResponseBody(JSON.toJSONString(new ResultVO(status,body)));
+        if(status!=302) {
+            InputStream in = context.getResponseDataStream();
+            String body = IOUtils.toString(in);
+            response.setCharacterEncoding("utf-8");
+            //针对第三方始终返回200调用成功，封装请求结果
+            if ((boolean) context.get(ZuulConst.IS_CGI_BIN)) {
+                response.setStatus(HttpStatus.OK.value());
+                context.setResponseBody(JSON.toJSONString(new ResultVO(status, body)));
+                return null;
             }
+            //内部系统不受管制，返回状态码根据子系统返回确定
+            context.setResponseBody(JSON.toJSONString(new ResultVO(status, body, request.getRequestURL().toString())));
             return null;
         }
-        //内部系统不受管制，返回状态码根据子系统返回确定
-        context.setResponseBody(JSON.toJSONString(new ResultVO(status,body,request.getRequestURL().toString())));
+        log.info("接收到302{}",request.getRequestURL());
         return null;
     }
     private static boolean isXmlDocument(InputStream in){
         boolean flag = true;
         try {
-            DocumentBuilderFactory foctory =DocumentBuilderFactory.newInstance();
-            DocumentBuilder builder = foctory.newDocumentBuilder();
+            DocumentBuilderFactory factory =DocumentBuilderFactory.newInstance();
+            DocumentBuilder builder = factory.newDocumentBuilder();
             builder.parse(in);
             flag = true;
         } catch (Exception e) {

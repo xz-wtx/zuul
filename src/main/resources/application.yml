@@ -1,7 +1,7 @@
 server:
   port: 8080
-  servlet:
-    context-path: /zuul
+#  servlet:
+#    context-path: /zuul
 spring:
   redis:
     host: localhost
@@ -12,7 +12,10 @@ zuul:
   routes:
     http:
       path: /uaa/**
-      url: http://localhost:8081/
+      url: http://localhost:8081/uaa/
+  sensitiveHeaders:
+  add-host-header: true
+
 security:
   oauth2:
     client:

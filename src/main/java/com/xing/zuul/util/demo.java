@@ -17,9 +17,9 @@ public class demo {
 
     @Scheduled(cron = "0/5 * * * * *")
     public void  get(){
-        System.out.println("定时器开。。。。");
-        JSONObject result = restTemplate.getForObject("http://localhost:8080/zuul/uaa/oauth/token?username=web&password=1111&grant_type=sms&client_id=appo&client_secret=12345", JSONObject.class);
-        System.out.println(result);
+//        System.out.println("定时器开。。。。");
+//        JSONObject result = restTemplate.getForObject("http://localhost:8080/zuul/uaa/oauth/token?username=web&password=1111&grant_type=sms&client_id=appo&client_secret=12345", JSONObject.class);
+//        System.out.println(result);
         
     }
 }
